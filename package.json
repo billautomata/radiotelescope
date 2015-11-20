@@ -1,0 +1,22 @@
+{
+  "name": "radiotelescope",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/billautomata/radiotelescope.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/billautomata/radiotelescope/issues"
+  },
+  "homepage": "https://github.com/billautomata/radiotelescope#readme",
+  "dependencies": {
+    "xmlrpc": "^1.3.1"
+  }
+}
