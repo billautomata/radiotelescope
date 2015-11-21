@@ -4,7 +4,7 @@ var xmlrpc = require('xmlrpc')
 
 var xmlrpc_client = xmlrpc.createClient({ host: 'localhost', port: 8080, path: '/'})
 
-var gnuradio = spawn('python2.7', ['top_block.py']);
+var gnuradio = spawn('python2.7', ['fft_over_tcp.py']);
 gnuradio.on('close', function (code, signal) {
   console.log('child process terminated due to receipt of signal ' + signal);
 });
@@ -30,6 +30,7 @@ setTimeout(function () {
     console.log('Connected to TCP connection');
   });
   xmlrpc_client.methodCall('get_test', [ ], function(error,v) { console.log(error,v) } )
+  xmlrpc_client.methodCall('Start', [ ], function(error,v) { console.log(error,v) } )
 }, 5000)
 
 client.on('error', function (d) {
@@ -59,5 +60,7 @@ client.on('data', function (data) {
 
 client.on('close', function () {
   // client.connect()
+  gnuradio.kill('SIGHUP');
+  process.exit(0)
   console.log('Connection closed');
 });
