@@ -2,7 +2,7 @@
 ##################################################
 # Gnuradio Python Flow Graph
 # Title: Fft Over Tcp
-# Generated: Sat Nov 21 11:41:18 2015
+# Generated: Sat Nov 21 10:40:38 2015
 ##################################################
 
 from gnuradio import blocks
@@ -86,15 +86,8 @@ class fft_over_tcp(grc_wxgui.top_block_gui):
         self.rtlsdr_source_0.set_bandwidth(0, 0)
           
         self.fft_vxx_0 = fft.fft_vcc(veclen, True, (window.blackmanharris(veclen)), True, 1)
-        self.blocks_stream_to_vector_1 = blocks.stream_to_vector(gr.sizeof_gr_complex*1, samp_rate)
         self.blocks_stream_to_vector_0 = blocks.stream_to_vector(gr.sizeof_gr_complex*1, veclen)
         self.blocks_complex_to_mag_0 = blocks.complex_to_mag(veclen)
-        self.blks2_tcp_sink_0_0 = grc_blks2.tcp_sink(
-        	itemsize=gr.sizeof_gr_complex*samp_rate,
-        	addr="127.0.0.1",
-        	port=10002,
-        	server=True,
-        )
         self.blks2_tcp_sink_0 = grc_blks2.tcp_sink(
         	itemsize=gr.sizeof_float*veclen,
         	addr="127.0.0.1",
@@ -107,10 +100,8 @@ class fft_over_tcp(grc_wxgui.top_block_gui):
         ##################################################
         self.connect((self.blocks_complex_to_mag_0, 0), (self.blks2_tcp_sink_0, 0))    
         self.connect((self.blocks_stream_to_vector_0, 0), (self.fft_vxx_0, 0))    
-        self.connect((self.blocks_stream_to_vector_1, 0), (self.blks2_tcp_sink_0_0, 0))    
         self.connect((self.fft_vxx_0, 0), (self.blocks_complex_to_mag_0, 0))    
         self.connect((self.rtlsdr_source_0, 0), (self.blocks_stream_to_vector_0, 0))    
-        self.connect((self.rtlsdr_source_0, 0), (self.blocks_stream_to_vector_1, 0))    
         self.connect((self.rtlsdr_source_0, 0), (self.wxgui_fftsink2_1, 0))    
         self.connect((self.rtlsdr_source_0, 0), (self.wxgui_waterfallsink2_0, 0))    
 
@@ -126,17 +117,17 @@ class fft_over_tcp(grc_wxgui.top_block_gui):
 
     def set_test(self, test):
         self.test = test
-        self.wxgui_fftsink2_1.set_baseband_freq(self.test)
         self.rtlsdr_source_0.set_center_freq(self.test, 0)
+        self.wxgui_fftsink2_1.set_baseband_freq(self.test)
 
     def get_samp_rate(self):
         return self.samp_rate
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
+        self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
         self.wxgui_waterfallsink2_0.set_sample_rate(self.samp_rate)
         self.wxgui_fftsink2_1.set_sample_rate(self.samp_rate)
-        self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
 
 if __name__ == '__main__':
     import ctypes
