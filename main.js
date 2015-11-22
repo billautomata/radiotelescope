@@ -38,8 +38,16 @@ if(process.env.HTTPS && process.env.HTTPS === '1'){
 
 app.use(express.static(__dirname + '/public'))
 
+var sockets = []
+
 io.on('connection', function(socket){
+
   console.log('a user connected');
+  sockets.push(socket)
+
+  socket.on('disconnect', function(){
+    sockets = sockets.filter(function(s){ return s !== socket })
+  })
 });
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -95,25 +103,38 @@ function start_connections(){
 
 setTimeout(start_connections, 5000)
 
-
 ///////////////////////////////////////////////////////////////////////////////
 // network events & signal processing
+
+var send_array = []
+var copy_idx
+
 client.on('data', function (data) {
-  // console.log('Received: ' + data.length)
 
-  for (var i = 0; i < data.length; i++) {
-    b[c_idx] = data[i]
-    c_idx += 1
-    if (c_idx >= b.length) {
-      c_idx = 0
-
-      var s = []
-      for (var z = 1425; z < 1435; z++) {
-        s.push(b.readFloatLE(z * byte_size).toFixed(2))
-      }
-      console.log(s.join(' '))
+  if(sockets.length > 0){
+    send_array = []
+    for(copy_idx = 0; copy_idx < vec_len; copy_idx+=1){
+      send_array.push(b.readFloatLE(copy_idx * byte_size).toFixed(4))
     }
+    sockets.forEach(function(s){
+      s.emit('fft_data', send_array)
+    })
   }
+
+  // console.log('Received: ' + data.length)
+  // for (var i = 0; i < data.length; i++) {
+  //   b[c_idx] = data[i]
+  //   c_idx += 1
+  //   if (c_idx >= b.length) {
+  //     c_idx = 0
+  //
+  //     var s = []
+  //     for (var z = 1425; z < 1435; z++) {
+  //       s.push(b.readFloatLE(z * byte_size).toFixed(2))
+  //     }
+  //     console.log(s.join(' '))
+  //   }
+  // }
 })
 
 iq_client.on('data', function (d) {

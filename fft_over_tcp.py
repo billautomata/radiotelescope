@@ -2,19 +2,16 @@
 ##################################################
 # Gnuradio Python Flow Graph
 # Title: Fft Over Tcp
-# Generated: Sat Nov 21 11:41:18 2015
+# Generated: Sun Nov 22 08:11:56 2015
 ##################################################
 
 from gnuradio import blocks
 from gnuradio import eng_notation
 from gnuradio import fft
 from gnuradio import gr
-from gnuradio import wxgui
 from gnuradio.eng_option import eng_option
 from gnuradio.fft import window
 from gnuradio.filter import firdes
-from gnuradio.wxgui import fftsink2
-from gnuradio.wxgui import waterfallsink2
 from grc_gnuradio import blks2 as grc_blks2
 from grc_gnuradio import wxgui as grc_wxgui
 from optparse import OptionParser
@@ -42,36 +39,6 @@ class fft_over_tcp(grc_wxgui.top_block_gui):
         self.xmlrpc_server_0 = SimpleXMLRPCServer.SimpleXMLRPCServer(("localhost", 8080), allow_none=True)
         self.xmlrpc_server_0.register_instance(self)
         threading.Thread(target=self.xmlrpc_server_0.serve_forever).start()
-        self.wxgui_waterfallsink2_0 = waterfallsink2.waterfall_sink_c(
-        	self.GetWin(),
-        	baseband_freq=1420e6,
-        	dynamic_range=100,
-        	ref_level=0,
-        	ref_scale=2.0,
-        	sample_rate=samp_rate,
-        	fft_size=veclen,
-        	fft_rate=15,
-        	average=False,
-        	avg_alpha=None,
-        	title="Waterfall Plot",
-        )
-        self.Add(self.wxgui_waterfallsink2_0.win)
-        self.wxgui_fftsink2_1 = fftsink2.fft_sink_c(
-        	self.GetWin(),
-        	baseband_freq=test,
-        	y_per_div=10,
-        	y_divs=10,
-        	ref_level=0,
-        	ref_scale=2.0,
-        	sample_rate=samp_rate,
-        	fft_size=veclen,
-        	fft_rate=8,
-        	average=False,
-        	avg_alpha=None,
-        	title="FFT Plot",
-        	peak_hold=False,
-        )
-        self.Add(self.wxgui_fftsink2_1.win)
         self.rtlsdr_source_0 = osmosdr.source( args="numchan=" + str(1) + " " + "" )
         self.rtlsdr_source_0.set_sample_rate(samp_rate)
         self.rtlsdr_source_0.set_center_freq(test, 0)
@@ -111,8 +78,6 @@ class fft_over_tcp(grc_wxgui.top_block_gui):
         self.connect((self.fft_vxx_0, 0), (self.blocks_complex_to_mag_0, 0))    
         self.connect((self.rtlsdr_source_0, 0), (self.blocks_stream_to_vector_0, 0))    
         self.connect((self.rtlsdr_source_0, 0), (self.blocks_stream_to_vector_1, 0))    
-        self.connect((self.rtlsdr_source_0, 0), (self.wxgui_fftsink2_1, 0))    
-        self.connect((self.rtlsdr_source_0, 0), (self.wxgui_waterfallsink2_0, 0))    
 
 
     def get_veclen(self):
@@ -126,7 +91,6 @@ class fft_over_tcp(grc_wxgui.top_block_gui):
 
     def set_test(self, test):
         self.test = test
-        self.wxgui_fftsink2_1.set_baseband_freq(self.test)
         self.rtlsdr_source_0.set_center_freq(self.test, 0)
 
     def get_samp_rate(self):
@@ -134,8 +98,6 @@ class fft_over_tcp(grc_wxgui.top_block_gui):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.wxgui_waterfallsink2_0.set_sample_rate(self.samp_rate)
-        self.wxgui_fftsink2_1.set_sample_rate(self.samp_rate)
         self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
 
 if __name__ == '__main__':
