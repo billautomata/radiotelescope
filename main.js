@@ -52,7 +52,10 @@ io.on('connection', function(socket){
 
 ///////////////////////////////////////////////////////////////////////////////
 /// launch GNURADIO
-var gnuradio = spawn('python2.7', ['fft_over_tcp.py'])
+
+var script_name = 'file_fft_to_tcp.py'
+
+var gnuradio = spawn('python2.7', [script_name])
 gnuradio.on('close', function (code, signal) {
   console.log('child process terminated due to receipt of signal ' + signal + ',' + code)
 })
@@ -88,10 +91,11 @@ function start_connections(){
 
       xmlrpc_client.methodCall('get_veclen', [], function (error, v) {
         console.log('done getting vector length')
-        console.log(error, v)
+        // console.log(error, v)
 
         xmlrpc_client.methodCall('Start', [], function (error, v) {
-          console.log(error, v)
+          console.log('done sending start.')
+          // console.log(error, v)
         })
       })
     })
@@ -122,19 +126,19 @@ client.on('data', function (data) {
   }
 
   // console.log('Received: ' + data.length)
-  // for (var i = 0; i < data.length; i++) {
-  //   b[c_idx] = data[i]
-  //   c_idx += 1
-  //   if (c_idx >= b.length) {
-  //     c_idx = 0
-  //
-  //     var s = []
-  //     for (var z = 1425; z < 1435; z++) {
-  //       s.push(b.readFloatLE(z * byte_size).toFixed(2))
-  //     }
-  //     console.log(s.join(' '))
-  //   }
-  // }
+  for (var i = 0; i < data.length; i++) {
+    b[c_idx] = data[i]
+    c_idx += 1
+    if (c_idx >= b.length) {
+      c_idx = 0
+
+      var s = []
+      for (var z = 1425; z < 1435; z++) {
+        s.push(b.readFloatLE(z * byte_size).toFixed(2))
+      }
+      // console.log(s.join(' '))
+    }
+  }
 })
 
 iq_client.on('data', function (d) {
