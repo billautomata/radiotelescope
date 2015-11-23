@@ -7,6 +7,8 @@ var https = require('https')
 var express = require('express')
 var io
 
+spawn('killall', ['Python'])
+
 ///////////////////////////////////////////////////////////////////////////////
 /// setup webserver
 var port = 8000;
@@ -45,6 +47,8 @@ io.on('connection', function(socket){
   console.log('a user connected');
   sockets.push(socket)
 
+  console.log(sockets.length, 'users total')
+
   socket.on('disconnect', function(){
     sockets = sockets.filter(function(s){ return s !== socket })
   })
@@ -53,7 +57,12 @@ io.on('connection', function(socket){
 ///////////////////////////////////////////////////////////////////////////////
 /// launch GNURADIO
 
-var script_name = 'file_fft_to_tcp.py'
+var script_name = 'fft_to_tcp.py'
+
+if(process.env.FILE && process.env.FILE === '1'){
+  script_name = 'file_fft_to_tcp_nogui.py'
+  console.log('script named changed')
+}
 
 var gnuradio = spawn('python2.7', [script_name])
 gnuradio.on('close', function (code, signal) {
@@ -115,20 +124,11 @@ var copy_idx
 
 client.on('data', function (data) {
 
-  if(sockets.length > 0){
-    send_array = []
-    for(copy_idx = 0; copy_idx < vec_len; copy_idx+=1){
-      send_array.push(b.readFloatLE(copy_idx * byte_size).toFixed(4))
-    }
-    sockets.forEach(function(s){
-      s.emit('fft_data', send_array)
-    })
-  }
-
-  // console.log('Received: ' + data.length)
   for (var i = 0; i < data.length; i++) {
+
     b[c_idx] = data[i]
     c_idx += 1
+
     if (c_idx >= b.length) {
       c_idx = 0
 
@@ -137,6 +137,16 @@ client.on('data', function (data) {
         s.push(b.readFloatLE(z * byte_size).toFixed(2))
       }
       // console.log(s.join(' '))
+
+      if(sockets.length > 0){
+        send_array = []
+        for(copy_idx = 0; copy_idx < vec_len; copy_idx+=1){
+          send_array.push(b.readFloatLE(copy_idx * byte_size).toFixed(4))
+        }
+        sockets.forEach(function(s){
+          s.emit('fft_data', send_array)
+        })
+      }
     }
   }
 })

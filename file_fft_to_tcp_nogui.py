@@ -1,20 +1,17 @@
 #!/usr/bin/env python
 ##################################################
 # Gnuradio Python Flow Graph
-# Title: File Fft To Tcp
-# Generated: Sun Nov 22 18:08:54 2015
+# Title: File Fft To Tcp Nogui
+# Generated: Sun Nov 22 18:14:08 2015
 ##################################################
 
 from gnuradio import blocks
 from gnuradio import eng_notation
 from gnuradio import fft
 from gnuradio import gr
-from gnuradio import wxgui
 from gnuradio.eng_option import eng_option
 from gnuradio.fft import window
 from gnuradio.filter import firdes
-from gnuradio.wxgui import fftsink2
-from gnuradio.wxgui import waterfallsink2
 from grc_gnuradio import blks2 as grc_blks2
 from grc_gnuradio import wxgui as grc_wxgui
 from optparse import OptionParser
@@ -22,10 +19,10 @@ import SimpleXMLRPCServer
 import threading
 import wx
 
-class file_fft_to_tcp(grc_wxgui.top_block_gui):
+class file_fft_to_tcp_nogui(grc_wxgui.top_block_gui):
 
     def __init__(self):
-        grc_wxgui.top_block_gui.__init__(self, title="File Fft To Tcp")
+        grc_wxgui.top_block_gui.__init__(self, title="File Fft To Tcp Nogui")
 
         ##################################################
         # Variables
@@ -40,36 +37,6 @@ class file_fft_to_tcp(grc_wxgui.top_block_gui):
         self.xmlrpc_server_0 = SimpleXMLRPCServer.SimpleXMLRPCServer(("localhost", 8080), allow_none=True)
         self.xmlrpc_server_0.register_instance(self)
         threading.Thread(target=self.xmlrpc_server_0.serve_forever).start()
-        self.wxgui_waterfallsink2_0 = waterfallsink2.waterfall_sink_c(
-        	self.GetWin(),
-        	baseband_freq=1420e6,
-        	dynamic_range=100,
-        	ref_level=0,
-        	ref_scale=2.0,
-        	sample_rate=samp_rate,
-        	fft_size=veclen,
-        	fft_rate=15,
-        	average=False,
-        	avg_alpha=None,
-        	title="Waterfall Plot",
-        )
-        self.Add(self.wxgui_waterfallsink2_0.win)
-        self.wxgui_fftsink2_1 = fftsink2.fft_sink_c(
-        	self.GetWin(),
-        	baseband_freq=test,
-        	y_per_div=10,
-        	y_divs=10,
-        	ref_level=0,
-        	ref_scale=2.0,
-        	sample_rate=samp_rate,
-        	fft_size=veclen,
-        	fft_rate=8,
-        	average=False,
-        	avg_alpha=None,
-        	title="FFT Plot",
-        	peak_hold=False,
-        )
-        self.Add(self.wxgui_fftsink2_1.win)
         self.fft_vxx_0 = fft.fft_vcc(veclen, True, (window.blackmanharris(veclen)), True, 1)
         self.blocks_throttle_0 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,True)
         self.blocks_stream_to_vector_1 = blocks.stream_to_vector(gr.sizeof_gr_complex*1, samp_rate)
@@ -98,8 +65,6 @@ class file_fft_to_tcp(grc_wxgui.top_block_gui):
         self.connect((self.blocks_stream_to_vector_1, 0), (self.blks2_tcp_sink_0_0, 0))    
         self.connect((self.blocks_throttle_0, 0), (self.blocks_stream_to_vector_0, 0))    
         self.connect((self.blocks_throttle_0, 0), (self.blocks_stream_to_vector_1, 0))    
-        self.connect((self.blocks_throttle_0, 0), (self.wxgui_fftsink2_1, 0))    
-        self.connect((self.blocks_throttle_0, 0), (self.wxgui_waterfallsink2_0, 0))    
         self.connect((self.fft_vxx_0, 0), (self.blocks_complex_to_mag_0, 0))    
 
 
@@ -114,15 +79,12 @@ class file_fft_to_tcp(grc_wxgui.top_block_gui):
 
     def set_test(self, test):
         self.test = test
-        self.wxgui_fftsink2_1.set_baseband_freq(self.test)
 
     def get_samp_rate(self):
         return self.samp_rate
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.wxgui_fftsink2_1.set_sample_rate(self.samp_rate)
-        self.wxgui_waterfallsink2_0.set_sample_rate(self.samp_rate)
         self.blocks_throttle_0.set_sample_rate(self.samp_rate)
 
 if __name__ == '__main__':
@@ -136,6 +98,6 @@ if __name__ == '__main__':
             print "Warning: failed to XInitThreads()"
     parser = OptionParser(option_class=eng_option, usage="%prog: [options]")
     (options, args) = parser.parse_args()
-    tb = file_fft_to_tcp()
+    tb = file_fft_to_tcp_nogui()
     tb.Start(False)
     tb.Wait()
